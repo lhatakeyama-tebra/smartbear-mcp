@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- [Common] Rewrote the transport bootstrap to serve both the 2025-11-25 and 2026-07-28 (RC) MCP protocol revisions from a single deployment, on stdio (`serveStdio`, `legacy: "serve"`) and HTTP (per-request routing between the existing sessionful wiring and a new stateless `createMcpHandler` leg). Existing 2025-11-25 clients are unaffected. [#687](https://github.com/SmartBear/smartbear-mcp/pull/687)
+
 - [Common] Removed support for the MCP `sampling` capability, which was deprecated in the 2026-07-28 MCP specification revision ([SEP-2577](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2577)). The server no longer negotiates the `sampling` client capability or sends `sampling/createMessage` requests. [#685](https://github.com/SmartBear/smartbear-mcp/pull/685)
 - [PactFlow] The `generate`/`review` tools' OpenAPI matcher recommendation flow no longer relies on MCP sampling: when an OpenAPI document is provided without a `matcher`, the tool now always returns a prompt for the host AI to execute directly and resubmit with a single recommended matcher, rather than a list of up to 5 recommendations to choose from via elicitation. [#685](https://github.com/SmartBear/smartbear-mcp/pull/685)
 
