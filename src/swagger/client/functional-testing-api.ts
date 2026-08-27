@@ -179,10 +179,10 @@ export class FunctionalTestingAPI {
   async listSuiteExecutions(
     args: ListFunctionalTestingSuiteExecutionsParams,
   ): Promise<ListSuiteExecutionsResponse> {
-    if (!args.suiteId) throw new ToolError("suiteId argument is required");
+    if (!args.slug) throw new ToolError("slug argument is required");
 
     const response = await this.ftFetch(
-      `suites/${encodeURIComponent(args.suiteId)}/executions`,
+      `suites/${encodeURIComponent(args.slug)}/executions`,
       {
         method: "GET",
         headers: this.getFtHeaders(),
@@ -190,12 +190,12 @@ export class FunctionalTestingAPI {
       handleStatus(
         new Map([
           // Defensive: the Reflect API currently returns 200 with an empty
-          // `executions.data` list for an unknown suiteId rather than a 404, so this
+          // `executions.data` list for an unknown slug rather than a 404, so this
           // branch is not expected to fire today. Kept in case the API starts
           // returning 404 for missing suites.
           [
             404,
-            "Test suite not found. Verify the suiteId is correct and belongs to your workspace.",
+            "Test suite not found. Verify the slug is correct and belongs to your workspace.",
           ],
         ]),
         errorMessageFor("list suite executions"),
@@ -204,7 +204,7 @@ export class FunctionalTestingAPI {
 
     const data: ListSuiteExecutionsResponse = await response.json();
     return {
-      ...data,
+      slug: args.slug,
       executions: {
         data: data.executions.data.map(
           ({ executionId, status, isFinished, url }) => ({
@@ -235,7 +235,11 @@ export class FunctionalTestingAPI {
       errorMessageFor("create Functional Testing suite"),
     );
 
-    return response.json();
+    const data: CreateFunctionalTestingSuiteResponse = await response.json();
+    return {
+      slug: data.slug,
+      url: data.url,
+    };
   }
 
   async listSuites(): Promise<ListSuitesResponse> {
@@ -254,13 +258,13 @@ export class FunctionalTestingAPI {
   async cancelSuiteExecution(
     args: CancelFunctionalTestingSuiteExecutionParams,
   ): Promise<unknown> {
-    if (!args.suiteId) throw new ToolError("suiteId argument is required");
+    if (!args.slug) throw new ToolError("slug argument is required");
     if (!args.executionId) {
       throw new ToolError("executionId argument is required");
     }
 
     const response = await this.ftFetch(
-      `suites/${encodeURIComponent(args.suiteId)}/executions/${encodeURIComponent(args.executionId)}/cancel`,
+      `suites/${encodeURIComponent(args.slug)}/executions/${encodeURIComponent(args.executionId)}/cancel`,
       {
         method: "PATCH",
         headers: this.getFtHeaders(),
@@ -269,7 +273,7 @@ export class FunctionalTestingAPI {
         new Map([
           [
             404,
-            "Suite execution not found. Verify the suiteId and executionId are correct and belong to your workspace.",
+            "Suite execution not found. Verify the slug and executionId are correct and belong to your workspace.",
           ],
           [
             409,
@@ -284,7 +288,7 @@ export class FunctionalTestingAPI {
   }
 
   async runSuite(args: RunFunctionalTestingSuiteParams): Promise<unknown> {
-    if (!args.suiteId) throw new ToolError("suiteId argument is required");
+    if (!args.slug) throw new ToolError("slug argument is required");
 
     const body = args.tunnelAgentName
       ? JSON.stringify({
@@ -293,7 +297,7 @@ export class FunctionalTestingAPI {
       : undefined;
 
     const response = await this.ftFetch(
-      `suites/${args.suiteId}/executions`,
+      `suites/${args.slug}/executions`,
       {
         method: "POST",
         headers: this.getFtHeaders(),
@@ -308,13 +312,13 @@ export class FunctionalTestingAPI {
   async getSuiteExecution(
     args: GetFunctionalTestingSuiteExecutionParams,
   ): Promise<unknown> {
-    if (!args.suiteId) throw new ToolError("suiteId argument is required");
+    if (!args.slug) throw new ToolError("slug argument is required");
     if (!args.executionId) {
       throw new ToolError("executionId argument is required");
     }
 
     const response = await this.ftFetch(
-      `suites/${args.suiteId}/executions/${args.executionId}`,
+      `suites/${args.slug}/executions/${args.executionId}`,
       {
         method: "GET",
         headers: this.getFtHeaders(),
