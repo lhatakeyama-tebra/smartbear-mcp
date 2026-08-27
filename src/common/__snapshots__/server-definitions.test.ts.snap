@@ -13629,9 +13629,7 @@ Expected Output: The List of test cases linked to Jira issue PROJ-123 with their
       "issueKey",
     ],
     "outputSchema": [
-      "key",
-      "self",
-      "version",
+      "testCases",
     ],
     "title": "Zephyr: Get Issue Link Test Cases",
   },

@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  GetIssueLinkTestCasesParams as GetIssueLinkTestCasesPathParam,
-  GetIssueLinkTestCases200Response as GetIssueLinkTestCasesResponse,
-} from "../../common/rest-api-schemas";
+import { GetIssueLinkTestCasesParams as GetIssueLinkTestCasesPathParam } from "../../common/rest-api-schemas";
 import { GetTestCases } from "./get-test-cases";
 
 describe("GetIssueLinkTestCases", () => {
@@ -28,8 +25,11 @@ describe("GetIssueLinkTestCases", () => {
     expect(instance.specification.inputSchema).toBe(
       GetIssueLinkTestCasesPathParam,
     );
-    expect(instance.specification.outputSchema).toBe(
-      GetIssueLinkTestCasesResponse,
+    expect(
+      instance.specification.outputSchema?.safeParse({ testCases: [] }).success,
+    ).toBe(true);
+    expect(instance.specification.outputSchema?.safeParse([]).success).toBe(
+      false,
     );
   });
 
@@ -56,6 +56,10 @@ describe("GetIssueLinkTestCases", () => {
       "/issuelinks/PROJ-123/testcases",
     );
     expect(result.structuredContent).toEqual({ testCases: responseMock });
+    expect(
+      instance.specification.outputSchema?.safeParse(result.structuredContent)
+        .success,
+    ).toBe(true);
     expect(result.content).toEqual([]);
   });
 
